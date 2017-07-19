@@ -156,7 +156,7 @@ var swipe = function ($container, option) {
                     window.setTimeout(function () {
                         enableDuration();
                         setHOffset(0);
-                        onmoved(this.__cur, cur);
+                        onmoved(_this.__cur, cur);
                         window.setTimeout(function () {
                             interval();
                         }, transDuration);
@@ -171,7 +171,7 @@ var swipe = function ($container, option) {
                     window.setTimeout(function () {
                         enableDuration();
                         setHOffset(-(size - 1) * containerSize.w);
-                        onmoved(this.__cur, cur);
+                        onmoved(_this.__cur, cur);
                         window.setTimeout(function () {
                             interval();
                         }, transDuration);
@@ -191,7 +191,7 @@ var swipe = function ($container, option) {
                     window.setTimeout(function () {
                         enableDuration();
                         setVOffset(0);
-                        onmoved(this.__cur, cur);
+                        onmoved(_this.__cur, cur);
                         window.setTimeout(function () {
                             interval();
                         }, transDuration);
@@ -206,7 +206,7 @@ var swipe = function ($container, option) {
                     window.setTimeout(function () {
                         enableDuration();
                         setVOffset(-(size - 1) * containerSize.h);
-                        onmoved(this.__cur, cur);
+                        onmoved(_this.__cur, cur);
                         window.setTimeout(function () {
                             interval();
                         }, transDuration);
