@@ -30,11 +30,15 @@ Create an instance like this:
 var $target = document.getElementById('my-swiper');
 var mySwiper = new Swipe($target, {
     cssText: {
-        '.indicators': '',
-        '.indicator': '',
-        '.indicator.current': ''
+        item: '',
+        indicators: '',
+        indicator: '',
+        indicatorCurrent: ''
     },
-    onmoved: function (index, indexBefore) {}
+    onmoved: function (index, indexBefore) {
+        console.log(`current index: ${index}`);
+        console.log(`previous index: ${indexBefore}`);
+    }
 });
 ```
 ## License
