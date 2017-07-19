@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no">
+        <title>demo</title>
+        <style>
+            .container {
+                width: 200px;
+                height: 100px;
+                overflow: hidden;
+            }
+            .container.other-class {
+                margin: auto;
+                text-align: center;
+                border: 1px #ccc solid;
+            }
+            .items.other-class {
+                line-height: 100px;
+            }
+        </style>
+        <script src="./swipe.js" charset="utf-8"></script>
+    </head>
+    <body>
+        <div id="my-swiper-h" class="container other-class">
+            <div class="items other-class">
+                <div class="item">item1</div>
+                <div class="item">item2</div>
+                <div class="item">item3</div>
+            </div>
+        </div>
+        <div id="my-swiper-v" class="container other-class">
+            <div class="items other-class">
+                <div class="item">item1</div>
+                <div class="item">item2</div>
+                <div class="item">item3</div>
+            </div>
+        </div>
+        <script type="text/javascript">
+            window.onload = function () {
+                var $target;
+                $target = document.getElementById('my-swiper-h');
+                var myHSwiper = new Swipe($target, {
+                    initIndex: 0,
+                    cssText: {
+                        item: '',
+                        indicators: '',
+                        indicator: '',
+                        indicatorCurrent: ''
+                    },
+                    onmoved: function (index, indexBefore) {
+                        console.log(`current index: ${index}`);
+                        console.log(`previous index: ${indexBefore}`);
+                    }
+                });
+                $target = document.getElementById('my-swiper-v');
+                var myVSwiper = new Swipe($target, {
+                    initIndex: 1,
+                    cssText: {
+                        item: '',
+                        indicators: '',
+                        indicator: '',
+                        indicatorCurrent: ''
+                    },
+                    direction: 'v',
+                    onmoved: function (index, indexBefore) {
+                        console.log(`current index: ${index}`);
+                        console.log(`previous index: ${indexBefore}`);
+                    }
+                });
+            };
+        </script>
+    </body>
+</html>
