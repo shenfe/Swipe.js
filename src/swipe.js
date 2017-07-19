@@ -16,10 +16,12 @@ var swipe = function ($container, option) {
     this.__cur = option.initIndex || 0;
     var loop = !!option.loop;
     var dir = option.direction || 'h';
-    var onmoving = option.onmoving || function () {};
-    var onmoved = option.onmoved || function () {};
     var duration = option.duration || 3000;
     var transDuration = 300;
+
+    this.size = function () {
+        return $container.querySelectorAll('.items>.item').length;
+    };
 
     ensure_elements: {
         $container.className += ' swipe-container';
@@ -28,10 +30,16 @@ var swipe = function ($container, option) {
         addCssRule('.swipe-container .item', 'width:100%;height:100%;font-size:16px;' + (option.cssText.item || '') + (dir === 'h' ? 'display:inline-block;' : ''));
         var $indicators = document.createElement('div');
         $indicators.className = 'swipe-indicators';
-        $indicators.style.cssText = 'position:absolute;text-align:center;'
+        $indicators.style.cssText = 'position:absolute;text-align:center;width:100%;height:10px;left:0;bottom:4px;'
             + (option.cssText.indicators || '');
-        addCssRule('.swipe-indicators .indicator', option.cssText.indicator || '');
-        addCssRule('.swipe-indicators .indicator.current', option.cssText.indicatorCurrent || '');
+        addCssRule('.swipe-indicators .indicator', 'display:inline-block;width:4px;height:4px;border-radius:100px;background:rgba(0,0,0,.4);' + (option.cssText.indicator || ''));
+        addCssRule('.swipe-indicators .indicator.current', 'background:rgba(255,255,255,.4);' + (option.cssText.indicatorCurrent || ''));
+        for (var i = 0, s = this.size(); i < s; i++) {
+            var $indicator = document.createElement('div');
+            $indicator.className = 'indicator';
+            $indicators.appendChild($indicator);
+        }
+        $container.appendChild($indicators);
     }
 
     var setHOffset = function (v) {
@@ -42,6 +50,26 @@ var swipe = function ($container, option) {
         offset.y = v;
         $items.style.transform = $items.style.WebkitTransform = 'translate3d(0,' + v + 'px,0)';
     };
+
+    var _this = this;
+
+    var syncIndicator = function () {
+        var $indicators = [].slice.call($container.querySelectorAll('.swipe-indicators .indicator'), 0);
+        $indicators.forEach(function ($item, i) {
+            if (i !== _this.__cur) {
+                $item.classList.remove('current');
+            } else {
+                $item.classList.add('current');
+            }
+        });
+    };
+    syncIndicator();
+
+    // var onmoving = option.onmoving || function () {};
+    var onmoved = function () {
+        syncIndicator();
+        option.onmoved.apply(option, [].slice.call(arguments, 0));
+    } || function () {};
 
     init: {
         var containerSize = {
@@ -58,8 +86,6 @@ var swipe = function ($container, option) {
     var offsetItemCount = function () {
         return dir === 'h' ? (-offset.x / containerSize.w) : (-offset.y / containerSize.h);
     };
-
-    var _this = this;
 
     interval: {
         var _interval = null;
@@ -110,9 +136,6 @@ var swipe = function ($container, option) {
     this.current = function () {
         return $container.querySelector('.items>.item:nth-child(' + this.__cur + ')');
     };
-    this.size = function () {
-        return $container.querySelectorAll('.items>.item').length;
-    };
     this.move = function (step) {
         var size = this.size(),
             cur = this.__cur;
@@ -133,6 +156,7 @@ var swipe = function ($container, option) {
                     window.setTimeout(function () {
                         enableDuration();
                         setHOffset(0);
+                        onmoved(this.__cur, cur);
                         window.setTimeout(function () {
                             interval();
                         }, transDuration);
@@ -147,6 +171,7 @@ var swipe = function ($container, option) {
                     window.setTimeout(function () {
                         enableDuration();
                         setHOffset(-(size - 1) * containerSize.w);
+                        onmoved(this.__cur, cur);
                         window.setTimeout(function () {
                             interval();
                         }, transDuration);
@@ -166,6 +191,7 @@ var swipe = function ($container, option) {
                     window.setTimeout(function () {
                         enableDuration();
                         setVOffset(0);
+                        onmoved(this.__cur, cur);
                         window.setTimeout(function () {
                             interval();
                         }, transDuration);
@@ -180,6 +206,7 @@ var swipe = function ($container, option) {
                     window.setTimeout(function () {
                         enableDuration();
                         setVOffset(-(size - 1) * containerSize.h);
+                        onmoved(this.__cur, cur);
                         window.setTimeout(function () {
                             interval();
                         }, transDuration);
