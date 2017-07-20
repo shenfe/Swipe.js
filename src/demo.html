@@ -49,14 +49,12 @@
                         indicator: '',
                         indicatorCurrent: ''
                     },
-                    onmoved: function (index, indexBefore) {
-                        console.log(`current index: ${index}`);
-                        console.log(`previous index: ${indexBefore}`);
-                    }
+                    onmoved: function (index, indexBefore) {}
                 });
                 $target = document.getElementById('my-swiper-v');
                 var myVSwiper = new Swipe($target, {
                     initIndex: 1,
+                    notAuto: true,
                     cssText: {
                         item: '',
                         indicators: '',
