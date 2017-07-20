@@ -119,6 +119,14 @@ var swipe = function ($container, option) {
         option.onmoved.apply(option, [].slice.call(arguments, 0));
     } || function () {};
 
+    var disableDuration = function () {
+        $items.style.transition = $items.style.WebkitTransition = 'none';
+    };
+    var enableDuration = function (r) {
+        r = r || 1;
+        $items.style.transition = $items.style.WebkitTransition = 'all ' + ((transDuration/r)/1000) + 's ease';
+    };
+
     bind_events: {
         var touchPos = { x: 0, y: 0 },
             touchstartPos = { x: 0, y: 0 },
@@ -129,6 +137,7 @@ var swipe = function ($container, option) {
             touchstartPos.x = touchPos.x = touchobj.pageX;
             touchstartPos.y = touchPos.y = touchobj.pageY;
             touchstartTime = Date.now();
+            disableDuration();
         }, false);
         $items.addEventListener('touchmove', function (e) {
             _interval && window.clearInterval(_interval);
@@ -142,6 +151,8 @@ var swipe = function ($container, option) {
             touchPos.y = touchobj.pageY;
         }, false);
         $items.addEventListener('touchend', function (e) {
+            enableDuration();
+            
             // way1: {
             //     var offsetItemNumber = Math.round(offsetItemCount());
             //     _this.goto(offsetItemNumber);
@@ -178,14 +189,6 @@ var swipe = function ($container, option) {
         }, false);
     }
 
-    var disableDuration = function () {
-        $items.style.transition = $items.style.WebkitTransition = '';
-    };
-    var enableDuration = function (r) {
-        r = r || 1;
-        $items.style.transition = $items.style.WebkitTransition = 'all ' + ((transDuration/r)/1000) + 's ease';
-    };
-
     this.current = function () {
         return $container.querySelector('.items>.item:nth-child(' + this.__cur + ')');
     };
@@ -212,7 +215,7 @@ var swipe = function ($container, option) {
                         setHOffset(0);
                         window.setTimeout(function () { enableDuration(); }, transDuration / 2);
                         onmoved(_this.__cur, cur);
-                    }, 0);
+                    }, 20);
                 }, transDuration);
             } else if (cur === 0 && step === -1) {
                 _interval && window.clearInterval(_interval);
@@ -226,7 +229,7 @@ var swipe = function ($container, option) {
                         setHOffset(-(size - 1) * containerSize.w);
                         window.setTimeout(function () { enableDuration(); }, transDuration / 2);
                         onmoved(_this.__cur, cur);
-                    }, 0);
+                    }, 20);
                 }, transDuration);
             } else {
                 setHOffset(-this.__cur * containerSize.w);
@@ -245,7 +248,7 @@ var swipe = function ($container, option) {
                         setVOffset(0);
                         window.setTimeout(function () { enableDuration(); }, transDuration / 2);
                         onmoved(_this.__cur, cur);
-                    }, 0);
+                    }, 20);
                 }, transDuration);
             } else if (cur === 0 && step === -1) {
                 _interval && window.clearInterval(_interval);
@@ -259,7 +262,7 @@ var swipe = function ($container, option) {
                         setVOffset(-(size - 1) * containerSize.h);
                         window.setTimeout(function () { enableDuration(); }, transDuration / 2);
                         onmoved(_this.__cur, cur);
-                    }, 0);
+                    }, 20);
                 }, transDuration);
             } else {
                 setVOffset(-this.__cur * containerSize.h);
