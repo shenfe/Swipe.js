@@ -142,8 +142,6 @@ var swipe = function ($container, option) {
             touchPos.y = touchobj.pageY;
         }, false);
         $items.addEventListener('touchend', function (e) {
-            console.log('touchend');
-            
             // way1: {
             //     var offsetItemNumber = Math.round(offsetItemCount());
             //     _this.goto(offsetItemNumber);
@@ -168,11 +166,9 @@ var swipe = function ($container, option) {
                     }
                     if (dir === 'h' && Math.abs(touchendPos.x - touchstartPos.x) > containerSize.w / 2) {
                         _this.move(touchendPos.x - touchstartPos.x < 0 ? 1 : -1);
-                        console.log('distance enough');
                         return;
                     } else if (dir === 'v' && Math.abs(touchendPos.y - touchstartPos.y) > containerSize.h / 2) {
                         _this.move(touchendPos.y - touchstartPos.y < 0 ? 1 : -1);
-                        console.log('distance enough');
                         return;
                     }
                     
