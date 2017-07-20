@@ -12,6 +12,7 @@ var addCssRule = function (selectorString, styleString) {
 
 var swipe = function ($container, option) {
     option = option || {};
+    option.cssText = option.cssText || {};
 
     this.__cur = option.initIndex || 0;
     var loop = !!option.loop;

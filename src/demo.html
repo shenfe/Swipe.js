@@ -40,17 +40,10 @@
         <script type="text/javascript">
             window.onload = function () {
                 var $target;
+                
                 $target = document.getElementById('my-swiper-h');
-                var myHSwiper = new Swipe($target, {
-                    initIndex: 0,
-                    cssText: {
-                        item: '',
-                        indicators: '',
-                        indicator: '',
-                        indicatorCurrent: ''
-                    },
-                    onmoved: function (index, indexBefore) {}
-                });
+                var myHSwiper = new Swipe($target);
+                
                 $target = document.getElementById('my-swiper-v');
                 var myVSwiper = new Swipe($target, {
                     initIndex: 1,
