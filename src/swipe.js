@@ -16,7 +16,7 @@ var swipe = function ($container, option) {
 
     var loop = !!option.loop;
     var notAuto = !!option.notAuto;
-    var dir = (option.direction === 'h') ? 'h' : 'v';
+    var dir = (option.direction === 'v') ? 'v' : 'h';
     var duration = option.duration || 3000;
     var transDurationDefault = 300;
     var transDuration = option.transDuration || transDurationDefault;
