@@ -118,7 +118,7 @@ var swipe = function ($container, option) {
     var onmoved = function () {
         interval();
         syncIndicator();
-        option.onmoved.apply(option, [].slice.call(arguments, 0));
+        option.onmoved && option.onmoved.apply(option, [].slice.call(arguments, 0));
     } || function () {};
 
     var disableDuration = function () {
