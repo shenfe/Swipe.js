@@ -217,24 +217,14 @@ var swipe = function ($container, option) {
         } else {
             this.__cur = cur + step;
         }
-        if (dir === 'h') {
-            if (cur === size - 1 && step === 1) {
-                specAction('h', cur, -size * containerSize.w, containerSize.w, 0);
-            } else if (cur === 0 && step === -1) {
-                specAction('h', cur, containerSize.w, -size * containerSize.w, -(size - 1) * containerSize.w);
-            } else {
-                setHOffset(-this.__cur * containerSize.w);
-                onmoved(this.__cur, cur);
-            }
+        var baseStep = containerSize[dir === 'h' ? 'w' : 'h'];
+        if (cur === size - 1 && step === 1) {
+            specAction(dir, cur, -size * baseStep, baseStep, 0);
+        } else if (cur === 0 && step === -1) {
+            specAction(dir, cur, baseStep, -size * baseStep, -(size - 1) * baseStep);
         } else {
-            if (cur === size - 1 && step === 1) {
-                specAction('v', cur, -size * containerSize.h, containerSize.h, 0);
-            } else if (cur === 0 && step === -1) {
-                specAction('v', cur, containerSize.h, -size * containerSize.h, -(size - 1) * containerSize.h);
-            } else {
-                setVOffset(-this.__cur * containerSize.h);
-                onmoved(this.__cur, cur);
-            }
+            (dir === 'h' ? setHOffset : setVOffset)(-this.__cur * baseStep);
+            onmoved(this.__cur, cur);
         }
     };
     this.goto = function (index) {
