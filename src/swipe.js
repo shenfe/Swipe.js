@@ -14,20 +14,24 @@ var swipe = function ($container, option) {
     option = option || {};
     option.cssText = option.cssText || {};
 
-    this.__cur = option.initIndex || 0;
     var loop = !!option.loop;
     var notAuto = !!option.notAuto;
-    var dir = option.direction || 'h';
+    var dir = (option.direction === 'h') ? 'h' : 'v';
     var duration = option.duration || 3000;
     var transDurationDefault = 300;
     var transDuration = option.transDuration || transDurationDefault;
     var parentSelector = option.parentSelector || ('swipe_' + Math.floor(Math.random() * 10000));
+    var _this = this;
 
+    this.__cur = option.initIndex || 0;
+    this.current = function () {
+        return $container.querySelector('.items>.item:nth-child(' + this.__cur + ')');
+    };
     this.size = function () {
         return $container.querySelectorAll('.items>.item').length;
     };
     
-    add_global_style: {
+    ensure_styles: {
         if (!window.swipe_global_style_added) {
             addCssRule('.swipe-container .item', 'width:100%;height:100%;font-size:initial;');
             addCssRule('.swipe-container-h .item', 'display:inline-block;');
@@ -41,15 +45,18 @@ var swipe = function ($container, option) {
             window.swipe_global_style_added = true;
         }
     }
+    
+    var $items = null;
+    var $indicators = null;
 
     ensure_elements: {
         $container.className += ' ' + parentSelector + ' swipe-container ' + (dir === 'h' ? 'swipe-container-h' : 'swipe-container-v');
         
-        var $items = $container.querySelector('.items');
+        $items = $container.querySelector('.items');
         $items.style.cssText += '-webkit-transition:all ' + (transDuration/1000) + 's ease;transition:all ' + (transDuration/1000) + 's ease;';
         option.cssText.item && addCssRule('.' + parentSelector + ' .item', option.cssText.item);
         
-        var $indicators = document.createElement('div');
+        $indicators = document.createElement('div');
         $indicators.className = 'swipe-indicators';
         option.cssText.indicators       && addCssRule('.' + parentSelector + ' .swipe-indicators', option.cssText.indicators);
         option.cssText.indicator        && addCssRule('.' + parentSelector + ' .swipe-indicators .indicator', option.cssText.indicator);
@@ -62,6 +69,9 @@ var swipe = function ($container, option) {
         $container.appendChild($indicators);
     }
 
+    var offset = { x: 0, y: 0 };
+    var containerSize = { w: 0, h: 0 };
+    
     var setHOffset = function (v) {
         offset.x = v;
         $items.style.transform = $items.style.WebkitTransform = 'translate3d(' + v + 'px,0,0)';
@@ -70,8 +80,9 @@ var swipe = function ($container, option) {
         offset.y = v;
         $items.style.transform = $items.style.WebkitTransform = 'translate3d(0,' + v + 'px,0)';
     };
-
-    var _this = this;
+    var offsetItemCount = function () {
+        return dir === 'h' ? (-offset.x / containerSize.w) : (-offset.y / containerSize.h);
+    };
 
     var syncIndicator = function () {
         var $indicators = [].slice.call($container.querySelectorAll('.swipe-indicators .indicator'), 0);
@@ -83,23 +94,6 @@ var swipe = function ($container, option) {
             }
         });
     };
-    syncIndicator();
-
-    init: {
-        var containerSize = {
-            w: $container.clientWidth,
-            h: $container.clientHeight
-        };
-        var offset = {
-            x: dir === 'h' ? (0 - this.__cur * containerSize.w) : 0,
-            y: dir === 'v' ? (0 - this.__cur * containerSize.h) : 0
-        };
-        dir === 'h' ? setHOffset(offset.x) : setVOffset(offset.y);
-    }
-
-    var offsetItemCount = function () {
-        return dir === 'h' ? (-offset.x / containerSize.w) : (-offset.y / containerSize.h);
-    };
 
     interval: {
         var _interval = null;
@@ -110,6 +104,13 @@ var swipe = function ($container, option) {
                 _this.move(1);
             }, duration);
         };
+    }
+
+    init: {
+        syncIndicator();
+        containerSize.w = $container.clientWidth,
+        containerSize.h = $container.clientHeight;
+        dir === 'h' ? setHOffset(0 - this.__cur * containerSize.w) : setVOffset(0 - this.__cur * containerSize.h);
         interval();
     }
 
@@ -129,9 +130,9 @@ var swipe = function ($container, option) {
     };
 
     bind_events: {
-        var touchPos = { x: 0, y: 0 },
-            touchstartPos = { x: 0, y: 0 },
-            touchstartTime = 0;
+        var touchPos        = { x: 0, y: 0 };
+        var touchstartPos   = { x: 0, y: 0 };
+        var touchstartTime  = 0;
         $items.addEventListener('touchstart', function (e) {
             _interval && window.clearInterval(_interval);
             var touchobj = e.changedTouches[0];
@@ -169,10 +170,10 @@ var swipe = function ($container, option) {
                 (function () {
                     if (touchendTime - touchstartTime < 500) {
                         if (dir === 'h') {
-                            _this.move(touchendPos.x - touchstartPos.x < 0 ? 1 : -1);
+                            _this.move((touchendPos.x - touchstartPos.x < 0) ? 1 : -1);
                             return;
-                        } else if (dir === 'v') {
-                            _this.move(touchendPos.y - touchstartPos.y < 0 ? 1 : -1);
+                        } else {
+                            _this.move((touchendPos.y - touchstartPos.y < 0) ? 1 : -1);
                             return;
                         }
                     }
@@ -190,8 +191,21 @@ var swipe = function ($container, option) {
         }, false);
     }
 
-    this.current = function () {
-        return $container.querySelector('.items>.item:nth-child(' + this.__cur + ')');
+    var specAction = function (d, cur, s1, s2, s3) {
+        var setOffset = d === 'h' ? setHOffset : setVOffset;
+        _interval && window.clearInterval(_interval);
+        enableDuration(2);
+        setOffset(s1);
+        window.setTimeout(function () {
+            disableDuration();
+            setOffset(s2);
+            window.setTimeout(function () {
+                enableDuration(2);
+                setOffset(s3);
+                window.setTimeout(function () { enableDuration(); }, transDuration / 2);
+                onmoved(_this.__cur, cur);
+            }, 20);
+        }, transDuration);
     };
     this.move = function (step) {
         var size = this.size(),
@@ -205,66 +219,18 @@ var swipe = function ($container, option) {
         }
         if (dir === 'h') {
             if (cur === size - 1 && step === 1) {
-                _interval && window.clearInterval(_interval);
-                enableDuration(2);
-                setHOffset(-size * containerSize.w);
-                window.setTimeout(function () {
-                    disableDuration();
-                    setHOffset(containerSize.w);
-                    window.setTimeout(function () {
-                        enableDuration(2);
-                        setHOffset(0);
-                        window.setTimeout(function () { enableDuration(); }, transDuration / 2);
-                        onmoved(_this.__cur, cur);
-                    }, 20);
-                }, transDuration);
+                specAction('h', cur, -size * containerSize.w, containerSize.w, 0);
             } else if (cur === 0 && step === -1) {
-                _interval && window.clearInterval(_interval);
-                enableDuration(2);
-                setHOffset(containerSize.w);
-                window.setTimeout(function () {
-                    disableDuration();
-                    setHOffset(-size * containerSize.w);
-                    window.setTimeout(function () {
-                        enableDuration(2);
-                        setHOffset(-(size - 1) * containerSize.w);
-                        window.setTimeout(function () { enableDuration(); }, transDuration / 2);
-                        onmoved(_this.__cur, cur);
-                    }, 20);
-                }, transDuration);
+                specAction('h', cur, containerSize.w, -size * containerSize.w, -(size - 1) * containerSize.w);
             } else {
                 setHOffset(-this.__cur * containerSize.w);
                 onmoved(this.__cur, cur);
             }
         } else {
             if (cur === size - 1 && step === 1) {
-                _interval && window.clearInterval(_interval);
-                enableDuration(2);
-                setVOffset(-size * containerSize.h);
-                window.setTimeout(function () {
-                    disableDuration();
-                    setVOffset(containerSize.h);
-                    window.setTimeout(function () {
-                        enableDuration(2);
-                        setVOffset(0);
-                        window.setTimeout(function () { enableDuration(); }, transDuration / 2);
-                        onmoved(_this.__cur, cur);
-                    }, 20);
-                }, transDuration);
+                specAction('v', cur, -size * containerSize.h, containerSize.h, 0);
             } else if (cur === 0 && step === -1) {
-                _interval && window.clearInterval(_interval);
-                enableDuration(2);
-                setVOffset(containerSize.h);
-                window.setTimeout(function () {
-                    disableDuration();
-                    setVOffset(-size * containerSize.h);
-                    window.setTimeout(function () {
-                        enableDuration(2);
-                        setVOffset(-(size - 1) * containerSize.h);
-                        window.setTimeout(function () { enableDuration(); }, transDuration / 2);
-                        onmoved(_this.__cur, cur);
-                    }, 20);
-                }, transDuration);
+                specAction('v', cur, containerSize.h, -size * containerSize.h, -(size - 1) * containerSize.h);
             } else {
                 setVOffset(-this.__cur * containerSize.h);
                 onmoved(this.__cur, cur);
