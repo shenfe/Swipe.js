@@ -74,12 +74,12 @@ var swipe = function ($container, option) {
     var containerSize = { w: 0, h: 0 };
     
     var setHOffset = function (v) {
-        if (!loop) v = v > 0 ? 0 : ((v < (1 - _this_size) * containerSize.w) ? (1 - _this_size) * containerSize.w) : v);
+        if (!loop) v = v > 0 ? 0 : ((v < (1 - _this_size) * containerSize.w) ? ((1 - _this_size) * containerSize.w) : v);
         offset.x = v;
         $items.style.transform = $items.style.WebkitTransform = 'translate3d(' + v + 'px,0,0)';
     };
     var setVOffset = function (v) {
-        if (!loop) v = v > 0 ? 0 : ((v < (1 - _this_size) * containerSize.h) ? (1 - _this_size) * containerSize.h) : v);
+        if (!loop) v = v > 0 ? 0 : ((v < (1 - _this_size) * containerSize.h) ? ((1 - _this_size) * containerSize.h) : v);
         offset.y = v;
         $items.style.transform = $items.style.WebkitTransform = 'translate3d(0,' + v + 'px,0)';
     };
