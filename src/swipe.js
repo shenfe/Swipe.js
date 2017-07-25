@@ -215,8 +215,10 @@ var swipe = function ($container, option) {
         var size = this.size(),
             cur = this.__cur;
         if (cur + step >= size) {
+            if (!loop) return;
             this.__cur = 0;
         } else if (cur + step < 0) {
+            if (!loop) return;
             this.__cur = size - 1;
         } else {
             this.__cur = cur + step;
