@@ -173,10 +173,10 @@ var swipe = function ($container, option) {
                 
                 (function () {
                     if (touchendTime - touchstartTime < 500) {
-                        if (dir === 'h') {
+                        if (dir === 'h' && Math.abs(touchendPos.x - touchstartPos.x) > 20) {
                             _this.move((touchendPos.x - touchstartPos.x < 0) ? 1 : -1);
                             return;
-                        } else {
+                        } else if (dir === 'v' && Math.abs(touchendPos.y - touchstartPos.y) > 20) {
                             _this.move((touchendPos.y - touchstartPos.y < 0) ? 1 : -1);
                             return;
                         }
