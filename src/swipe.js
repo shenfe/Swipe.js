@@ -149,7 +149,7 @@ var swipe = function ($container, option) {
             _interval && window.clearInterval(_interval);
             var touchobj = e.changedTouches[0];
             if (dir === 'h') {
-                else setHOffset(offset.x + touchobj.pageX - touchPos.x);
+                setHOffset(offset.x + touchobj.pageX - touchPos.x);
             } else {
                 setVOffset(offset.y + touchobj.pageY - touchPos.y);
             }
