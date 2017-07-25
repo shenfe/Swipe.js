@@ -30,6 +30,7 @@ var swipe = function ($container, option) {
     this.size = function () {
         return $container.querySelectorAll('.items>.item').length;
     };
+    var _this_size = _this.size();
     
     ensure_styles: {
         if (!window.swipe_global_style_added) {
@@ -73,10 +74,12 @@ var swipe = function ($container, option) {
     var containerSize = { w: 0, h: 0 };
     
     var setHOffset = function (v) {
+        if (!loop) v = v > 0 ? 0 : ((v < (1 - _this_size) * containerSize.w) ? (1 - _this_size) * containerSize.w) : v);
         offset.x = v;
         $items.style.transform = $items.style.WebkitTransform = 'translate3d(' + v + 'px,0,0)';
     };
     var setVOffset = function (v) {
+        if (!loop) v = v > 0 ? 0 : ((v < (1 - _this_size) * containerSize.h) ? (1 - _this_size) * containerSize.h) : v);
         offset.y = v;
         $items.style.transform = $items.style.WebkitTransform = 'translate3d(0,' + v + 'px,0)';
     };
@@ -140,12 +143,13 @@ var swipe = function ($container, option) {
             touchstartPos.y = touchPos.y = touchobj.pageY;
             touchstartTime = Date.now();
             disableDuration();
+            _this_size = _this.size();
         }, false);
         $items.addEventListener('touchmove', function (e) {
             _interval && window.clearInterval(_interval);
             var touchobj = e.changedTouches[0];
             if (dir === 'h') {
-                setHOffset(offset.x + touchobj.pageX - touchPos.x);
+                else setHOffset(offset.x + touchobj.pageX - touchPos.x);
             } else {
                 setVOffset(offset.y + touchobj.pageY - touchPos.y);
             }
