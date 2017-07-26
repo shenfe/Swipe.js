@@ -31,6 +31,14 @@ var swipe = function ($container, option) {
         return $container.querySelectorAll('.items>.item').length;
     };
     var _this_size = _this.size();
+
+    var disabled = false;
+    this.disable = function () {
+        disabled = true;
+    };
+    this.enable = function () {
+        disabled = false;
+    };
     
     ensure_styles: {
         if (!window.swipe_global_style_added) {
@@ -137,6 +145,8 @@ var swipe = function ($container, option) {
         var touchstartPos   = { x: 0, y: 0 };
         var touchstartTime  = 0;
         $items.addEventListener('touchstart', function (e) {
+            if (disabled) return;
+            
             _interval && window.clearInterval(_interval);
             var touchobj = e.changedTouches[0];
             touchstartPos.x = touchPos.x = touchobj.pageX;
@@ -146,6 +156,8 @@ var swipe = function ($container, option) {
             _this_size = _this.size();
         }, false);
         $items.addEventListener('touchmove', function (e) {
+            if (disabled) return;
+            
             _interval && window.clearInterval(_interval);
             var touchobj = e.changedTouches[0];
             if (dir === 'h') {
@@ -157,6 +169,8 @@ var swipe = function ($container, option) {
             touchPos.y = touchobj.pageY;
         }, false);
         $items.addEventListener('touchend', function (e) {
+            if (disabled) return;
+            
             enableDuration();
             
             // way1: {
