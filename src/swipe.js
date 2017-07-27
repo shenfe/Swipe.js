@@ -15,6 +15,7 @@ var swipe = function ($container, option) {
     option.cssText = option.cssText || {};
 
     var loop = !!option.loop;
+    var smoothTouch = !!option.smoothTouch;
     var notAuto = !!option.notAuto;
     var dir = (option.direction === 'v') ? 'v' : 'h';
     var duration = option.duration || 3000;
@@ -152,7 +153,7 @@ var swipe = function ($container, option) {
             touchstartPos.x = touchPos.x = touchobj.pageX;
             touchstartPos.y = touchPos.y = touchobj.pageY;
             touchstartTime = Date.now();
-            disableDuration();
+            !smoothTouch && disableDuration();
             _this_size = _this.size();
         }, false);
         $items.addEventListener('touchmove', function (e) {
@@ -171,7 +172,7 @@ var swipe = function ($container, option) {
         $items.addEventListener('touchend', function (e) {
             if (disabled) return;
             
-            enableDuration();
+            !smoothTouch && enableDuration();
             
             // way1: {
             //     var offsetItemNumber = Math.round(offsetItemCount());
