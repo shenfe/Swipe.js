@@ -142,6 +142,13 @@ var swipe = function ($container, option) {
     };
 
     bind_events: {
+        var resizeContainer = function () {
+            containerSize.w = $container.clientWidth;
+            containerSize.h = $container.clientHeight;
+        };
+        window.addEventListener('resize', resizeContainer, false);
+        window.addEventListener('orientationchange', resizeContainer, false);
+        
         var touchPos        = { x: 0, y: 0 };
         var touchstartPos   = { x: 0, y: 0 };
         var touchstartTime  = 0;
