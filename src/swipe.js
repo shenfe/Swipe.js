@@ -30,10 +30,10 @@ var swipe = function ($container, option) {
 
     this.__cur = option.initIndex || 0;
     this.current = function () {
-        return $container.querySelector('.items>.item:nth-child(' + this.__cur + ')');
+        return $container.querySelector('.' + itemsClassList.join('.') + '>.item:nth-child(' + this.__cur + ')');
     };
     this.size = function () {
-        return $container.querySelectorAll('.items>.item').length;
+        return $container.querySelectorAll('.' + itemsClassList.join('.') + '>.item').length;
     };
     var _this_size = _this.size();
 
@@ -66,15 +66,15 @@ var swipe = function ($container, option) {
     ensure_elements: {
         $container.className += ' ' + containerClassName + ' swipe-container ' + (dir === 'h' ? 'swipe-container-h' : 'swipe-container-v');
 
-        $items = $container.querySelector('.items');
+        $items = $container.querySelector('.' + itemsClassList.join('.'));
         $items.style.cssText += '-webkit-transition:all ' + (transDuration/1000) + 's ease;transition:all ' + (transDuration/1000) + 's ease;';
-        option.cssText.item && addCssRule('.' + containerClassName + ' .item', option.cssText.item);
+        option.cssText.item && addCssRule('.' + containerClassName + ' .' + itemsClassList.join('.') + '>.item', option.cssText.item);
 
         $indicators = document.createElement('div');
-        $indicators.className = 'swipe-indicators';
-        option.cssText.indicators       && addCssRule('.' + containerClassName + ' .swipe-indicators', option.cssText.indicators);
-        option.cssText.indicator        && addCssRule('.' + containerClassName + ' .swipe-indicators .indicator', option.cssText.indicator);
-        option.cssText.indicatorCurrent && addCssRule('.' + containerClassName + ' .swipe-indicators .indicator.current', option.cssText.indicatorCurrent);
+        $indicators.className = indicatorsClassList.join(' ');
+        option.cssText.indicators       && addCssRule('.' + containerClassName + ' .' + indicatorsClassList.join('.'), option.cssText.indicators);
+        option.cssText.indicator        && addCssRule('.' + containerClassName + ' .' + indicatorsClassList.join('.') + ' .indicator', option.cssText.indicator);
+        option.cssText.indicatorCurrent && addCssRule('.' + containerClassName + ' .' + indicatorsClassList.join('.') + ' .indicator.current', option.cssText.indicatorCurrent);
         for (var i = 0, s = this.size(); i < s; i++) {
             var $indicator = document.createElement('div');
             $indicator.className = 'indicator';
@@ -101,7 +101,7 @@ var swipe = function ($container, option) {
     };
 
     var syncIndicator = function () {
-        var $indicators = [].slice.call($container.querySelectorAll('.swipe-indicators .indicator'), 0);
+        var $indicators = [].slice.call($container.querySelectorAll('.' + indicatorsClassList.join('.') + ' .indicator'), 0);
         $indicators.forEach(function ($item, i) {
             if (i !== _this.__cur) {
                 $item.classList.remove('current');
