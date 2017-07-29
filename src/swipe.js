@@ -13,6 +13,7 @@ var addCssRule = function (selectorString, styleString) {
 var swipe = function ($container, option) {
     option = option || {};
     option.cssText = option.cssText || {};
+    option.className = option.className || {};
 
     var loop = !!option.loop;
     var smoothTouch = !!option.smoothTouch;
@@ -21,8 +22,11 @@ var swipe = function ($container, option) {
     var duration = option.duration || 3000;
     var transDurationDefault = 300;
     var transDuration = option.transDuration || transDurationDefault;
-    var parentSelector = option.parentSelector || ('swipe_' + Math.floor(Math.random() * 10000));
     var _this = this;
+
+    var containerClassName = option.className.container || ('swipe_' + Math.floor(Math.random() * 10000));
+    var itemsClassList = option.className.items ? ['items', option.className.items] : ['items'];
+    var indicatorsClassList = option.className.indicators ? ['swipe-indicators', option.className.indicators] : ['swipe-indicators'];
 
     this.__cur = option.initIndex || 0;
     this.current = function () {
@@ -40,7 +44,7 @@ var swipe = function ($container, option) {
     this.enable = function () {
         disabled = false;
     };
-    
+
     ensure_styles: {
         if (!window.swipe_global_style_added) {
             addCssRule('.swipe-container .item', 'width:100%;height:100%;font-size:initial;');
@@ -51,26 +55,26 @@ var swipe = function ($container, option) {
             addCssRule('.swipe-container-v .swipe-indicators', 'width:10px;right:0;top:50%;-webkit-transform:translate(0,-50%);transform:translate(0,-50%);');
             addCssRule('.swipe-container .swipe-indicators .indicator', 'display:inline-block;width:4px;height:4px;border-radius:100px;background:rgba(0,0,0,.4);margin:2px;');
             addCssRule('.swipe-container .swipe-indicators .indicator.current', 'background:rgba(207,207,207,.4);');
-            
+
             window.swipe_global_style_added = true;
         }
     }
-    
+
     var $items = null;
     var $indicators = null;
 
     ensure_elements: {
-        $container.className += ' ' + parentSelector + ' swipe-container ' + (dir === 'h' ? 'swipe-container-h' : 'swipe-container-v');
-        
+        $container.className += ' ' + containerClassName + ' swipe-container ' + (dir === 'h' ? 'swipe-container-h' : 'swipe-container-v');
+
         $items = $container.querySelector('.items');
         $items.style.cssText += '-webkit-transition:all ' + (transDuration/1000) + 's ease;transition:all ' + (transDuration/1000) + 's ease;';
-        option.cssText.item && addCssRule('.' + parentSelector + ' .item', option.cssText.item);
-        
+        option.cssText.item && addCssRule('.' + containerClassName + ' .item', option.cssText.item);
+
         $indicators = document.createElement('div');
         $indicators.className = 'swipe-indicators';
-        option.cssText.indicators       && addCssRule('.' + parentSelector + ' .swipe-indicators', option.cssText.indicators);
-        option.cssText.indicator        && addCssRule('.' + parentSelector + ' .swipe-indicators .indicator', option.cssText.indicator);
-        option.cssText.indicatorCurrent && addCssRule('.' + parentSelector + ' .swipe-indicators .indicator.current', option.cssText.indicatorCurrent);
+        option.cssText.indicators       && addCssRule('.' + containerClassName + ' .swipe-indicators', option.cssText.indicators);
+        option.cssText.indicator        && addCssRule('.' + containerClassName + ' .swipe-indicators .indicator', option.cssText.indicator);
+        option.cssText.indicatorCurrent && addCssRule('.' + containerClassName + ' .swipe-indicators .indicator.current', option.cssText.indicatorCurrent);
         for (var i = 0, s = this.size(); i < s; i++) {
             var $indicator = document.createElement('div');
             $indicator.className = 'indicator';
@@ -81,7 +85,7 @@ var swipe = function ($container, option) {
 
     var offset = { x: 0, y: 0 };
     var containerSize = { w: 0, h: 0 };
-    
+
     var setHOffset = function (v) {
         if (!loop) v = v > 0 ? 0 : ((v < (1 - _this_size) * containerSize.w) ? ((1 - _this_size) * containerSize.w) : v);
         offset.x = v;
@@ -148,13 +152,13 @@ var swipe = function ($container, option) {
         };
         window.addEventListener('resize', resizeContainer, false);
         window.addEventListener('orientationchange', resizeContainer, false);
-        
+
         var touchPos        = { x: 0, y: 0 };
         var touchstartPos   = { x: 0, y: 0 };
         var touchstartTime  = 0;
         $items.addEventListener('touchstart', function (e) {
             if (disabled) return;
-            
+
             _interval && window.clearInterval(_interval);
             var touchobj = e.changedTouches[0];
             touchstartPos.x = touchPos.x = touchobj.pageX;
@@ -165,7 +169,7 @@ var swipe = function ($container, option) {
         }, false);
         $items.addEventListener('touchmove', function (e) {
             if (disabled) return;
-            
+
             _interval && window.clearInterval(_interval);
             var touchobj = e.changedTouches[0];
             if (dir === 'h') {
@@ -178,21 +182,21 @@ var swipe = function ($container, option) {
         }, false);
         $items.addEventListener('touchend', function (e) {
             if (disabled) return;
-            
+
             !smoothTouch && enableDuration();
-            
+
             // way1: {
             //     var offsetItemNumber = Math.round(offsetItemCount());
             //     _this.goto(offsetItemNumber);
             // }
-            
+
             way2: {
                 var touchobj = e.changedTouches[0],
                     touchendPos = { x: 0, y: 0 };
                 var touchendTime = Date.now();
                 touchendPos.x = touchobj.pageX;
                 touchendPos.y = touchobj.pageY;
-                
+
                 (function () {
                     if (touchendTime - touchstartTime < 500) {
                         if (dir === 'h' && Math.abs(touchendPos.x - touchstartPos.x) > 20) {
@@ -210,7 +214,7 @@ var swipe = function ($container, option) {
                         _this.move(touchendPos.y - touchstartPos.y < 0 ? 1 : -1);
                         return;
                     }
-                    
+
                     _this.move(0);
                 })();
             }
