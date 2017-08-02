@@ -36,8 +36,7 @@ var mySwiper = new Swipe($target, {
         indicatorCurrent: ''
     },
     onmoved: function (index, indexBefore) {
-        console.log(`current index: ${index}`);
-        console.log(`previous index: ${indexBefore}`);
+        console.log(`moved from ${indexBefore} to ${index}`);
     }
 });
 ```
