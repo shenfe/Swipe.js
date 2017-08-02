@@ -1,4 +1,4 @@
-# Swipe.js
+# lite-swiper
 A lightweight swiper component for mobile frontend.
 
 ## Usage
