@@ -1,6 +1,9 @@
 # lite-swiper
 A lightweight swiper component for mobile frontend.
 
+## Demo
+[Demo](http://shenfe.github.io/repos/lite-swiper/demo.html)
+
 ## Usage
 
 ### elements
