@@ -33,8 +33,13 @@ var rand_274841896 = (function () {
         this.current = function () {
             return $container.querySelector('.' + itemsClassList.join('.') + '>.item:nth-child(' + this.__cur + ')');
         };
+        var getItems = function (index) {
+            var all = $container.querySelectorAll('.' + itemsClassList.join('.') + '>.item');
+            if (index === undefined) return all;
+            return all[index];
+        };
         this.size = function () {
-            return $container.querySelectorAll('.' + itemsClassList.join('.') + '>.item').length;
+            return getItems().length;
         };
         var _this_size = _this.size();
 
@@ -49,7 +54,7 @@ var rand_274841896 = (function () {
         ensure_styles: {
             if (!window.swipe_global_style_added) {
                 addCssRule('.swipe-container .item', 'width:100%;height:100%;font-size:initial;');
-                addCssRule('.swipe-container-h .item', 'display:inline-block;');
+                addCssRule('.swipe-container-h .item', 'display:inline-block;position:relative;');
                 addCssRule('.swipe-container-h .items', 'white-space:nowrap;font-size:0;');
                 addCssRule('.swipe-container .swipe-indicators', 'position:absolute;text-align:center;font-size:0;');
                 addCssRule('.swipe-container-h .swipe-indicators', 'width:100%;height:10px;left:0;bottom:4px;');
@@ -68,7 +73,7 @@ var rand_274841896 = (function () {
             $container.className += ' ' + containerClassName + ' swipe-container ' + (dir === 'h' ? 'swipe-container-h' : 'swipe-container-v');
 
             $items = $container.querySelector('.' + itemsClassList.join('.'));
-            $items.style.cssText += '-webkit-transition:all ' + (transDuration/1000) + 's ease;transition:all ' + (transDuration/1000) + 's ease;';
+            $items.style.cssText += '-webkit-transition:-webkit-transform ' + (transDuration/1000) + 's ease;transition:transform ' + (transDuration/1000) + 's ease;';
             option.cssText.item && addCssRule('.' + containerClassName + ' .' + itemsClassList.join('.') + '>.item', option.cssText.item);
 
             $indicators = document.createElement('div');
@@ -98,7 +103,10 @@ var rand_274841896 = (function () {
             $items.style.transform = $items.style.WebkitTransform = 'translate3d(0,' + v + 'px,0)';
         };
         var offsetItemCount = function () {
-            return dir === 'h' ? (-offset.x / containerSize.w) : (-offset.y / containerSize.h);
+            var r = Math.round(dir === 'h' ? (-offset.x / containerSize.w) : (-offset.y / containerSize.h));
+            if (r < 0) r = _this_size - 1;
+            else if (r === _this_size) r = 0;
+            return r;
         };
 
         var syncIndicator = function () {
@@ -143,7 +151,9 @@ var rand_274841896 = (function () {
         };
         var enableDuration = function (r) {
             r = r || 1;
-            $items.style.transition = $items.style.WebkitTransition = 'all ' + ((transDuration/r)/1000) + 's ease';
+            var t = 'transform ' + ((transDuration/r)/1000) + 's ease';
+            $items.style.WebkitTransition = '-webkit-' + t;
+            $items.style.transition = t;
         };
 
         bind_events: {
@@ -157,6 +167,7 @@ var rand_274841896 = (function () {
             var touchPos        = { x: 0, y: 0 };
             var touchstartPos   = { x: 0, y: 0 };
             var touchstartTime  = 0;
+            var startAtIndex    = -1;
             $items.addEventListener('touchstart', function (e) {
                 if (disabled) return;
 
@@ -165,6 +176,7 @@ var rand_274841896 = (function () {
                 touchstartPos.x = touchPos.x = touchobj.pageX;
                 touchstartPos.y = touchPos.y = touchobj.pageY;
                 touchstartTime = Date.now();
+                startAtIndex = offsetItemCount();
                 !smoothTouch && disableDuration();
                 _this_size = _this.size();
             }, false);
@@ -180,60 +192,67 @@ var rand_274841896 = (function () {
                 }
                 touchPos.x = touchobj.pageX;
                 touchPos.y = touchobj.pageY;
+                if (startAtIndex === 0) {
+                    if (dir === 'h' && touchobj.pageX > touchstartPos.x) {
+                        getItems(_this_size - 1).style['left'] = '-' + _this_size + '00%';
+                    } else if (dir === 'v' && touchobj.pageY > touchstartPos.y) {
+                        getItems(_this_size - 1).style['top'] = '-' + _this_size + '00%';
+                    }
+                } else if (startAtIndex === _this_size - 1) {
+                    if (dir === 'h' && touchobj.pageX < touchstartPos.x) {
+                        getItems(0).style['left'] = '' + _this_size + '00%';
+                    } else if (dir === 'v' && touchobj.pageY < touchstartPos.y) {
+                        getItems(0).style['top'] = '' + _this_size + '00%';
+                    }
+                }
             }, false);
             $items.addEventListener('touchend', function (e) {
                 if (disabled) return;
 
                 !smoothTouch && enableDuration();
 
-                // way1: {
-                //     var offsetItemNumber = Math.round(offsetItemCount());
-                //     _this.goto(offsetItemNumber);
-                // }
+                var touchobj = e.changedTouches[0],
+                    touchendPos = { x: 0, y: 0 };
+                var touchendTime = Date.now();
+                touchendPos.x = touchobj.pageX;
+                touchendPos.y = touchobj.pageY;
 
-                way2: {
-                    var touchobj = e.changedTouches[0],
-                        touchendPos = { x: 0, y: 0 };
-                    var touchendTime = Date.now();
-                    touchendPos.x = touchobj.pageX;
-                    touchendPos.y = touchobj.pageY;
-
-                    (function () {
-                        if (touchendTime - touchstartTime < 500) {
-                            if (dir === 'h' && Math.abs(touchendPos.x - touchstartPos.x) > 20) {
-                                _this.move((touchendPos.x - touchstartPos.x < 0) ? 1 : -1);
-                                return;
-                            } else if (dir === 'v' && Math.abs(touchendPos.y - touchstartPos.y) > 20) {
-                                _this.move((touchendPos.y - touchstartPos.y < 0) ? 1 : -1);
-                                return;
-                            }
-                        }
-                        if (dir === 'h' && Math.abs(touchendPos.x - touchstartPos.x) > containerSize.w / 2) {
-                            _this.move(touchendPos.x - touchstartPos.x < 0 ? 1 : -1);
+                (function () {
+                    if (touchendTime - touchstartTime < 500) {
+                        if (dir === 'h' && Math.abs(touchendPos.x - touchstartPos.x) > 20) {
+                            _this.move((touchendPos.x - touchstartPos.x < 0) ? 1 : -1);
                             return;
-                        } else if (dir === 'v' && Math.abs(touchendPos.y - touchstartPos.y) > containerSize.h / 2) {
-                            _this.move(touchendPos.y - touchstartPos.y < 0 ? 1 : -1);
+                        } else if (dir === 'v' && Math.abs(touchendPos.y - touchstartPos.y) > 20) {
+                            _this.move((touchendPos.y - touchstartPos.y < 0) ? 1 : -1);
                             return;
                         }
+                    }
+                    if (dir === 'h' && Math.abs(touchendPos.x - touchstartPos.x) > containerSize.w / 2) {
+                        _this.move(touchendPos.x - touchstartPos.x < 0 ? 1 : -1);
+                        return;
+                    } else if (dir === 'v' && Math.abs(touchendPos.y - touchstartPos.y) > containerSize.h / 2) {
+                        _this.move(touchendPos.y - touchstartPos.y < 0 ? 1 : -1);
+                        return;
+                    }
 
-                        _this.move(0);
-                    })();
-                }
+                    _this.move(0);
+                })();
             }, false);
         }
 
-        var specAction = function (d, cur, s1, s2, s3) {
+        var specAction = function (d, cur, s1, s2, size, p) {
             var setOffset = d === 'h' ? setHOffset : setVOffset;
+            var cssProp = d === 'h' ? 'left' : 'top';
+            var keyIndex = p === 1 ? 0 : (size - 1);
             _interval && window.clearInterval(_interval);
-            enableDuration(2);
+            getItems(keyIndex).style[cssProp] = (p === 1 ? '' : '-') + size + '00%';
             setOffset(s1);
             window.setTimeout(function () {
                 disableDuration();
-                setOffset(s2);
                 window.setTimeout(function () {
-                    enableDuration(2);
-                    setOffset(s3);
-                    window.setTimeout(function () { enableDuration(); }, transDuration / 2);
+                    setOffset(s2);
+                    getItems(keyIndex).style[cssProp] = '0';
+                    window.setTimeout(function () { enableDuration(); }, 20);
                     onmoved(_this.__cur, cur);
                 }, 20);
             }, transDuration);
@@ -252,9 +271,9 @@ var rand_274841896 = (function () {
             }
             var baseStep = containerSize[dir === 'h' ? 'w' : 'h'];
             if (cur === size - 1 && step === 1) {
-                specAction(dir, cur, -size * baseStep, baseStep, 0);
+                specAction(dir, cur, -size * baseStep, 0, size, 1);
             } else if (cur === 0 && step === -1) {
-                specAction(dir, cur, baseStep, -size * baseStep, -(size - 1) * baseStep);
+                specAction(dir, cur, baseStep, -(size - 1) * baseStep, size, -1);
             } else {
                 (dir === 'h' ? setHOffset : setVOffset)(-this.__cur * baseStep);
                 onmoved(this.__cur, cur);
