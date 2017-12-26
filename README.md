@@ -6,6 +6,10 @@ A lightweight swiper component for mobile frontend.
 
 ## Usage
 
+```bash
+npm install lite-swiper --save
+```
+
 ### elements
 Ensure a container with [`width`, `height`, `overflow`] styles, an item wrapper, and several items:
 
@@ -30,6 +34,7 @@ Ensure a container with [`width`, `height`, `overflow`] styles, an item wrapper,
 Create an instance like this:
 
 ```js
+var Swipe = require('lite-swiper');
 var $target = document.getElementById('my-swiper');
 var mySwiper = new Swipe($target, {
     cssText: {
