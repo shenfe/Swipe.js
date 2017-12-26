@@ -43,6 +43,8 @@ var rand_274841896 = (function () {
         };
         var _this_size = _this.size();
 
+        if (_this_size === 1) return;
+
         var disabled = false;
         this.disable = function () {
             disabled = true;
@@ -193,16 +195,33 @@ var rand_274841896 = (function () {
                 touchPos.x = touchobj.pageX;
                 touchPos.y = touchobj.pageY;
                 if (startAtIndex === 0) {
-                    if (dir === 'h' && touchobj.pageX > touchstartPos.x) {
-                        getItems(_this_size - 1).style['left'] = '-' + _this_size + '00%';
-                    } else if (dir === 'v' && touchobj.pageY > touchstartPos.y) {
-                        getItems(_this_size - 1).style['top'] = '-' + _this_size + '00%';
+                    if (dir === 'h') {
+                        if (touchobj.pageX > touchstartPos.x) {
+                            getItems(_this_size - 1).style['left'] = '-' + _this_size + '00%';
+                        } else {
+                            getItems(1).style['left'] = '0';
+                        }
+                    } else if (dir === 'v') {
+                        if (touchobj.pageY > touchstartPos.y) {
+                            getItems(_this_size - 1).style['top'] = '-' + _this_size + '00%';
+                        } else {
+                            getItems(1).style['top'] = '0';
+                        }
                     }
-                } else if (startAtIndex === _this_size - 1) {
-                    if (dir === 'h' && touchobj.pageX < touchstartPos.x) {
-                        getItems(0).style['left'] = '' + _this_size + '00%';
-                    } else if (dir === 'v' && touchobj.pageY < touchstartPos.y) {
-                        getItems(0).style['top'] = '' + _this_size + '00%';
+                }
+                if (startAtIndex === _this_size - 1) {
+                    if (dir === 'h') {
+                        if (touchobj.pageX < touchstartPos.x) {
+                            getItems(0).style['left'] = '' + _this_size + '00%';
+                        } else {
+                            getItems(_this_size - 2).style['left'] = '0';
+                        }
+                    } else if (dir === 'v') {
+                        if (touchobj.pageY < touchstartPos.y) {
+                            getItems(0).style['top'] = '' + _this_size + '00%';
+                        } else {
+                            getItems(_this_size - 2).style['top'] = '0';
+                        }
                     }
                 }
             }, false);
@@ -269,6 +288,11 @@ var rand_274841896 = (function () {
             } else {
                 this.__cur = cur + step;
             }
+
+            if (this.__cur === 1) {
+                getItems(1).style[dir === 'h' ? 'left' : 'top'] = '0';
+            }
+
             var baseStep = containerSize[dir === 'h' ? 'w' : 'h'];
             if (cur === size - 1 && step === 1) {
                 specAction(dir, cur, -size * baseStep, 0, size, 1);
